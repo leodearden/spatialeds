@@ -29,12 +29,11 @@ import sys
 import opc
 import color_utils
 
-
 #-------------------------------------------------------------------------------
 # handle command line
 
 if len(sys.argv) == 1:
-    IP_PORT = '192.168.0.65:7890'
+    IP_PORT = 'localhost:7890'
 elif len(sys.argv) == 2 and ':' in sys.argv[1] and not sys.argv[1].startswith('-'):
     IP_PORT = sys.argv[1]
 else:
