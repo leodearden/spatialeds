@@ -23,8 +23,10 @@ Then run this script in another shell to send colors to the simulator
 
 from __future__ import division
 import sys
+import os
+cwd = os.getcwd()
 
-sys.path.insert(0, "/home/pi/src/openpixelcontrol/python/")
+sys.path.insert(0, cwd+"/openpixelcontrol/python/")
 
 import time
 import math
