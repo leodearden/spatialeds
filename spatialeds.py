@@ -44,7 +44,9 @@ fps = 60         # frames per second
 
 start_time = time.time()
 
-def rainbowWaves(numPixels, pixelArray, speed_r, speed_g, speed_b):
+pixels = [(0.0, 0.0, 0.0) for i in range(n_pixels)]
+
+def rainbowWaves(speed_r, speed_g, speed_b):
         # how many sine wave cycles are squeezed into our n_pixels
         # 24 happens to create nice diagonal stripes on the wall layout
         freq_r = 24
@@ -53,8 +55,8 @@ def rainbowWaves(numPixels, pixelArray, speed_r, speed_g, speed_b):
 
         t = (time.time() - start_time) * 5
 
-        for ii in range(numPixels):
-            pct = (ii / numPixels)
+        for ii in range(n_pixels):
+            pct = (ii / n_pixels)
             # diagonal black stripes
             pct_jittered = (pct * 77) % 37
             blackstripes = color_utils.cos(pct_jittered, offset=t*0.05, period=1, minn=-1.5, maxx=1.5)
@@ -64,7 +66,7 @@ def rainbowWaves(numPixels, pixelArray, speed_r, speed_g, speed_b):
             r = blackstripes * color_utils.remap(math.cos((t/speed_r + pct*freq_r)*math.pi*2), -1, 1, 0, 256)
             g = blackstripes * color_utils.remap(math.cos((t/speed_g + pct*freq_g)*math.pi*2), -1, 1, 0, 256)
             b = blackstripes * color_utils.remap(math.cos((t/speed_b + pct*freq_b)*math.pi*2), -1, 1, 0, 256)
-            pixelArray.append((r, g, b))
+            pixels[ii] = (r, g, b)
 
 def main():
     #-------------------------------------------------------------------------------
@@ -102,13 +104,11 @@ def main():
     print('')
 
     while True:
-        pixels = []
-
         if patternNumber == 0:
-            rainbowWaves(n_pixels, pixels, 29, -13, 19)
+            rainbowWaves(29, -13, 19)
 
         elif patternNumber == 1:
-            rainbowWaves(n_pixels, pixels, 1.4, -2.6, 3.8)
+            rainbowWaves(1.4, -2.6, 3.8)
 
         client.put_pixels(pixels, channel=0)
         time.sleep(1 / fps)
