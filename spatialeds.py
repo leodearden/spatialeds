@@ -30,14 +30,17 @@ sys.path.insert(0, cwd+"/openpixelcontrol/python/")
 
 import time
 import math
+import random
 
 import opc
 import color_utils
+from gamma import gamma_table
 
 # use for mode switching. Modes are as follows:
 # 0: chill
 # 1: dance
-patternNumber = 0
+# 2: rain
+patternNumber = 2
 
 n_pixels = 800  # number of pixels in the included "wall" layout
 fps = 60         # frames per second
@@ -45,6 +48,7 @@ fps = 60         # frames per second
 start_time = time.time()
 
 pixels = [(0.0, 0.0, 0.0) for i in range(n_pixels)]
+output = [(0.0, 0.0, 0.0) for i in range(n_pixels)]
 
 def rainbowWaves(speed_r, speed_g, speed_b):
         # how many sine wave cycles are squeezed into our n_pixels
@@ -66,7 +70,36 @@ def rainbowWaves(speed_r, speed_g, speed_b):
             r = blackstripes * color_utils.remap(math.cos((t/speed_r + pct*freq_r)*math.pi*2), -1, 1, 0, 256)
             g = blackstripes * color_utils.remap(math.cos((t/speed_g + pct*freq_g)*math.pi*2), -1, 1, 0, 256)
             b = blackstripes * color_utils.remap(math.cos((t/speed_b + pct*freq_b)*math.pi*2), -1, 1, 0, 256)
-            pixels[ii] = (r, g, b)
+            output[ii] = (r, g, b)
+
+def fadeDownTo(fromVal, toVal, step):
+    result = [0.0, 0.0, 0.0]
+
+    for colour in range(3):
+        if fromVal[colour] > toVal[colour] + step:
+            result[colour] = fromVal[colour] - step
+        else:
+            result[colour] = toVal[colour]
+
+    return tuple(result)
+
+# do this in 10-bit, because otherwise the gamma correction looks janky
+warmWhite = (859, 1023, 683)
+softWarmWhite = tuple(x*0.6 for x in warmWhite)
+
+def rain(nextDrop, avgInterval, fadeStep):
+    if (time.time() > nextDrop):
+        pixels[random.randrange(n_pixels)] = warmWhite
+        nextDrop = time.time() + random.gauss(avgInterval, avgInterval/2)
+
+    for ii in range(n_pixels):
+        pixels[ii] = fadeDownTo(pixels[ii], softWarmWhite, fadeStep)
+        output[ii] = tuple(gamma_table[int(x)] for x in pixels[ii])
+        # if ii == 0:
+            # print softWarmWhite
+
+    return nextDrop
+
 
 def main():
     #-------------------------------------------------------------------------------
@@ -103,6 +136,8 @@ def main():
     print('    sending pixels forever (control-c to exit)...')
     print('')
 
+    nextDrop = 0.0
+
     while True:
         if patternNumber == 0:
             rainbowWaves(29, -13, 19)
@@ -110,7 +145,10 @@ def main():
         elif patternNumber == 1:
             rainbowWaves(1.4, -2.6, 3.8)
 
-        client.put_pixels(pixels, channel=0)
+        elif patternNumber == 2:
+            nextDrop = rain(nextDrop, 0.05, 1)
+
+        client.put_pixels(output, channel=0)
         time.sleep(1 / fps)
 
 if __name__ == "__main__":
