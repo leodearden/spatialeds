@@ -31,6 +31,11 @@ sys.path.insert(0, cwd+"/openpixelcontrol/python/")
 import time
 import math
 import random
+import socket
+import fcntl
+import struct
+import errno
+
 
 import opc
 import color_utils
@@ -40,7 +45,9 @@ from gamma import gamma_table
 # 0: chill
 # 1: dance
 # 2: rain
-patternNumber = 2
+patternNumber = 0
+
+maxPatternNumber = 3
 
 n_pixels = 800  # number of pixels in the included "wall" layout
 fps = 60         # frames per second
@@ -49,6 +56,15 @@ start_time = time.time()
 
 pixels = [(0.0, 0.0, 0.0) for i in range(n_pixels)]
 output = [(0.0, 0.0, 0.0) for i in range(n_pixels)]
+
+# Stack overflow special. I'll figure out what it does if it stops working.
+def get_ip_address(ifname):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    return socket.inet_ntoa(fcntl.ioctl(
+        s.fileno(),
+        0x8915,  # SIOCGIFADDR
+        struct.pack('256s', ifname[:15])
+    )[20:24])
 
 def rainbowWaves(speed_r, speed_g, speed_b):
         # how many sine wave cycles are squeezed into our n_pixels
@@ -104,6 +120,20 @@ def rain(nextDrop, avgInterval, fadeStep):
 
 
 def main():
+    global patternNumber
+
+    #-------------------------------------------------------------------------------
+    # set up UDP socket
+
+    UDP_IP = get_ip_address("wlp2s0")
+    UDP_PORT = 5005
+
+    print ("Connected to WLAN with IP " + UDP_IP)
+
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.setblocking(0)
+    sock.bind((UDP_IP, UDP_PORT))
+
     #-------------------------------------------------------------------------------
     # handle command line
 
@@ -141,6 +171,25 @@ def main():
     nextDrop = 0.0
 
     while True:
+        #---------------------------------------------------------------------------
+        # listen for commands from the remote
+
+        try:
+            data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
+
+        except socket.error, e:
+            err = e.args[0]
+
+            if err != errno.EAGAIN and err != errno.EWOULDBLOCK:
+                # a "real" error occurred
+                print e
+
+        else:
+            patternNumber = (patternNumber + 1) % maxPatternNumber
+
+        #---------------------------------------------------------------------------
+        # use the current pattern
+
         if patternNumber == 0:
             rainbowWaves(29, -13, 19)
 
