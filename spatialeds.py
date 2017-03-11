@@ -35,6 +35,11 @@ import socket
 import fcntl
 import struct
 import errno
+import optparse
+try:
+    import json
+except ImportError:
+    import simplejson as json
 
 
 import opc
@@ -132,28 +137,37 @@ def main():
     #-------------------------------------------------------------------------------
     # handle command line
 
-    if len(sys.argv) == 1:
-        IP_PORT = 'localhost:7890'
-    elif len(sys.argv) == 2 and ':' in sys.argv[1] and not sys.argv[1].startswith('-'):
-        IP_PORT = sys.argv[1]
-    else:
-        print('''
-    Usage: raver_plaid.py [ip:port]
+    parser = optparse.OptionParser()
+    parser.add_option('-l', '--layout', dest='layout', default='disc.json',
+                      action='store', type='string',
+                      help='layout file')
+    parser.add_option('-s', '--server', dest='server', default='127.0.0.1:7890',
+                      action='store', type='string',
+                      help='ip and port of server')
 
-    If not set, ip:port defauls to 127.0.0.1:7890
-    ''')
-        sys.exit(0)
+    options, args = parser.parse_args()
 
+    #-------------------------------------------------------------------------------
+    # parse layout file
+
+    print
+    print '    parsing layout file'
+    print
+
+    coordinates = []
+    for item in json.load(open(options.layout)):
+        if 'point' in item:
+            coordinates.append(tuple(item['point']))
 
     #-------------------------------------------------------------------------------
     # connect to server
 
-    client = opc.Client(IP_PORT)
+    client = opc.Client(options.server)
     if client.can_connect():
-        print('    connected to %s' % IP_PORT)
+        print('    connected to %s' % options.server)
     else:
         # can't connect, but keep running in case the server appears later
-        print('    WARNING: could not connect to %s' % IP_PORT)
+        print('    WARNING: could not connect to %s' % options.server)
     print('')
 
 
