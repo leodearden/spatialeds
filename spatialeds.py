@@ -125,7 +125,7 @@ def main():
     #-------------------------------------------------------------------------------
     # set up UDP socket
 
-    UDP_IP = get_ip_address("wlp2s0")
+    UDP_IP = get_ip_address("wlan0")
     UDP_PORT = 5005
 
     print ("Connected to WLAN with IP " + UDP_IP)
