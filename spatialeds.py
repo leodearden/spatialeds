@@ -84,12 +84,14 @@ def fadeDownTo(fromVal, toVal, step):
     return tuple(result)
 
 # do this in 10-bit, because otherwise the gamma correction looks janky
-warmWhite = (859, 1023, 683)
+warmWhite = (911, 1020, 789)
+# warmWhite = (964, 1020, 896)
+# warmWhite = (859, 1023, 683)
 softWarmWhite = tuple(x*0.6 for x in warmWhite)
 
 def rain(nextDrop, avgInterval, fadeStep):
     if (time.time() > nextDrop):
-        pixels[random.randrange(n_pixels)] = warmWhite
+        pixels[random.randrange(n_pixels)] = tuple(color_utils.clamp(random.gauss(x, 50), 0, 1023) for x in warmWhite)
         nextDrop = time.time() + random.gauss(avgInterval, avgInterval/2)
 
     for ii in range(n_pixels):
