@@ -185,14 +185,9 @@ def main():
 
         try:
             data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
-
         except socket.error, e:
-            err = e.args[0]
-
-            if err != errno.EAGAIN and err != errno.EWOULDBLOCK:
-                # a "real" error occurred
-                print e
-
+            # nothing available
+            pass
         else:
             patternNumber = (patternNumber + 1) % maxPatternNumber
 
