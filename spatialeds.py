@@ -148,8 +148,8 @@ def rain(coordinates, nextDrop, avgInterval, fadeStep):
     global largeDrops
 
     if (random.random() < 0.05 and len(largeDrops) < 5):
-        fadeSpeed = random.uniform(0.25, 0.75)
-        largeDrops.append(largeDrop((random.uniform(-5, 5), random.uniform(-5, 5), 0.0), tuple(random.uniform(128, 255) for i in range(3)), random.uniform(1, 2), tuple(random.gauss(fadeSpeed, fadeSpeed/8) for i in range(3))))
+        fadeSpeed = random.uniform(0.5, 0.95)
+        largeDrops.append(largeDrop((random.uniform(-5, 5), random.uniform(-5, 5), 0.0), tuple(random.uniform(128, 255) for i in range(3)), random.uniform(1, 2), tuple(color_utils.clamp(random.gauss(fadeSpeed, fadeSpeed/8), 0.5, 0.95) for i in range(3))))
 
     for drop in largeDrops:
         drop.tick()
@@ -174,7 +174,7 @@ def rain(coordinates, nextDrop, avgInterval, fadeStep):
         pixels[ii] = fadeDownTo(pixels[ii], bgColour, fadeStep)
 
     if (time.time() > nextDrop):
-        pixels[random.randrange(n_pixels)] = tuple(color_utils.clamp(random.gauss(x, stdDev*255.0/x), 0, 255) for x in warmWhite)
+        pixels[random.randrange(n_pixels)] = tuple(color_utils.clamp(random.gauss(x, stdDev*255.0/x), pixels[ii][i], 255) for i, x in enumerate(warmWhite))
         nextDrop = time.time() + random.gauss(avgInterval, avgInterval/2)
 
     return nextDrop
@@ -262,7 +262,7 @@ def main():
             rainbowWaves(1.4, -2.6, 3.8)
 
         elif patternNumber == 2:
-            nextDrop = rain(coordinates, nextDrop, 0.05, 0.025)
+            nextDrop = rain(coordinates, nextDrop, 0.005, 0.1)
 
         client.put_pixels(pixels, channel=0)
         time.sleep(1 / fps)
