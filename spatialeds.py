@@ -119,35 +119,50 @@ class largeDrop:
         self.spreadPower = spreadPower_
         self.fadeSpeed = fadeSpeed_
         self.spawnTime = time.time()
-        self.epsilon = 0.01
         self.expired = False
+	self.maxColour = 255
+	self.colourThreshold = min(softWarmWhite)
+
+
+    def tick(self):
+        self.fadeFactor = tuple(speed ** (time.time() - self.spawnTime) for speed in self.fadeSpeed)
+        if self.maxColour < colourThreshold:
+            self.expired = True
+        self.maxColour = 0
 
     def getInfluence(self, pointCoords):
         distanceBetween = math.sqrt((self.coords[0]-pointCoords[0])**2 + (self.coords[1]-pointCoords[1])**2)
-        influenceFactor = 1 / max(distanceBetween**self.spreadPower, self.epsilon)
-        fadeFactor = tuple(speed ** (time.time() - self.spawnTime) for speed in self.fadeSpeed)
-        if fadeFactor < self.epsilon:
-            self.expired = True
+        influenceFactor = 1 / max(distanceBetween**self.spreadPower, 0.01)
 
-        return tuple(channel * influenceFactor * fadeFactor[i] for i, channel in enumerate(self.colour))
+        result = tuple(channel * influenceFactor * self.fadeFactor[i] for i, channel in enumerate(self.colour))
+	for colour in result:
+	    if colour > self.maxColour:
+                self.maxColour = colour
+
+        return result
 
 largeDrops = []
 
 def rain(coordinates, nextDrop, avgInterval, fadeStep):
     global largeDrops
 
-    if (random.random() < 0.05):
+    if (random.random() < 0.05 and len(largeDrops) < 5):
         fadeSpeed = random.uniform(0.25, 0.75)
         largeDrops.append(largeDrop((random.uniform(-5, 5), random.uniform(-5, 5), 0.0), tuple(random.uniform(128, 255) for i in range(3)), random.uniform(1, 2), tuple(random.gauss(fadeSpeed, fadeSpeed/8) for i in range(3))))
 
+    for index, drop in enumerate(largeDrops):
+        drop.tick()
+        if drop.expired:
+            del largeDrops[index]
+
     for ii in range(n_pixels):
         bgColour = [0.0, 0.0, 0.0]
-        for index, drop in enumerate(largeDrops):
+        for drop in largeDrops:
             influence = drop.getInfluence(coordinates[ii])
             for colour in range(3):
                 bgColour[colour] = min(bgColour[colour] + influence[colour], 255)
-            if drop.expired:
-                del largeDrops[index]
+                if bgColour[colour] < softWarmWhite[colour]:
+                    bgColour[colour] = softWarmWhite[colour]
 
 
         stringPosition = ii % pixels_per_string
