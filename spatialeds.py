@@ -49,7 +49,7 @@ import color_utils
 # 0: chill
 # 1: dance
 # 2: rain
-patternNumber = 0
+patternNumber = 2
 
 maxPatternNumber = 3
 
