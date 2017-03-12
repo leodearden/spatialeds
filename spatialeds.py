@@ -120,8 +120,9 @@ class largeDrop:
         self.fadeSpeed = fadeSpeed_
         self.spawnTime = time.time()
         self.expired = False
-	self.maxColour = 255
-	self.colourThreshold = min(softWarmWhite)
+        self.maxColour = 255
+        self.colourThreshold = min(softWarmWhite)
+        self.fadeFactor = (1.0, 1.0, 1.0)
 
 
     def tick(self):
@@ -135,8 +136,8 @@ class largeDrop:
         influenceFactor = 1 / max(distanceBetween**self.spreadPower, 0.01)
 
         result = tuple(channel * influenceFactor * self.fadeFactor[i] for i, channel in enumerate(self.colour))
-	for colour in result:
-	    if colour > self.maxColour:
+        for colour in result:
+            if colour > self.maxColour:
                 self.maxColour = colour
 
         return result
@@ -150,10 +151,10 @@ def rain(coordinates, nextDrop, avgInterval, fadeStep):
         fadeSpeed = random.uniform(0.25, 0.75)
         largeDrops.append(largeDrop((random.uniform(-5, 5), random.uniform(-5, 5), 0.0), tuple(random.uniform(128, 255) for i in range(3)), random.uniform(1, 2), tuple(random.gauss(fadeSpeed, fadeSpeed/8) for i in range(3))))
 
-    for index, drop in enumerate(largeDrops):
+    for drop in largeDrops:
         drop.tick()
-        if drop.expired:
-            del largeDrops[index]
+
+    largeDrops = [x for x in largeDrops if not x.expired]
 
     for ii in range(n_pixels):
         bgColour = [0.0, 0.0, 0.0]
