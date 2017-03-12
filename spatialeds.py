@@ -126,7 +126,7 @@ class largeDrop:
 
     def tick(self):
         self.fadeFactor = tuple(speed ** (time.time() - self.spawnTime) for speed in self.fadeSpeed)
-        if self.maxColour < colourThreshold:
+        if self.maxColour < self.colourThreshold:
             self.expired = True
         self.maxColour = 0
 
