@@ -125,11 +125,11 @@ class largeDrop:
     def getInfluence(self, pointCoords):
         distanceBetween = math.sqrt((self.coords[0]-pointCoords[0])**2 + (self.coords[1]-pointCoords[1])**2)
         influenceFactor = 1 / max(distanceBetween**self.spreadPower, self.epsilon)
-        fadeFactor = self.fadeSpeed ** (time.time() - self.spawnTime)
+        fadeFactor = tuple(speed ** (time.time() - self.spawnTime) for speed in self.fadeSpeed)
         if fadeFactor < self.epsilon:
             self.expired = True
 
-        return tuple(channel * influenceFactor * fadeFactor for channel in self.colour)
+        return tuple(channel * influenceFactor * fadeFactor[i] for i, channel in enumerate(self.colour))
 
 largeDrops = []
 
@@ -137,7 +137,8 @@ def rain(coordinates, nextDrop, avgInterval, fadeStep):
     global largeDrops
 
     if (random.random() < 0.05):
-        largeDrops.append(largeDrop((random.uniform(-5, 5), random.uniform(-5, 5), 0.0), tuple(random.uniform(128, 255) for i in range(3)), random.uniform(1, 2), random.uniform(0.25, 0.75)))
+        fadeSpeed = random.uniform(0.25, 0.75)
+        largeDrops.append(largeDrop((random.uniform(-5, 5), random.uniform(-5, 5), 0.0), tuple(random.uniform(128, 255) for i in range(3)), random.uniform(1, 2), tuple(random.gauss(fadeSpeed, fadeSpeed/8) for i in range(3))))
 
     for ii in range(n_pixels):
         bgColour = [0.0, 0.0, 0.0]
