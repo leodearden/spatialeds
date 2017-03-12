@@ -54,6 +54,7 @@ patternNumber = 0
 maxPatternNumber = 3
 
 n_pixels = 800  # number of pixels in the included "wall" layout
+pixels_per_string = 50
 fps = 60         # frames per second
 
 start_time = time.time()
@@ -106,15 +107,58 @@ def fadeDownTo(fromVal, toVal, step):
 warmWhite = (197, 255, 143)
 softWarmWhite = tuple(x*0.3 for x in warmWhite)
 
+#sunLight = (255, 215, 120)
+sunLight = (247, 223, 160)
+
 stdDev = 25
 
-def rain(nextDrop, avgInterval, fadeStep):
+class largeDrop:
+    def __init__(self, coords_, colour_, spreadPower_, fadeSpeed_):
+        self.coords = coords_
+        self.colour = colour_
+        self.spreadPower = spreadPower_
+        self.fadeSpeed = fadeSpeed_
+        self.spawnTime = time.time()
+        self.epsilon = 0.01
+        self.expired = False
+
+    def getInfluence(self, pointCoords):
+        distanceBetween = math.sqrt((self.coords[0]-pointCoords[0])**2 + (self.coords[1]-pointCoords[1])**2)
+        influenceFactor = 1 / max(distanceBetween**self.spreadPower, self.epsilon)
+        fadeFactor = self.fadeSpeed ** (time.time() - self.spawnTime)
+        if fadeFactor < self.epsilon:
+            self.expired = True
+
+        return tuple(channel * influenceFactor * fadeFactor for channel in self.colour)
+
+largeDrops = []
+
+def rain(coordinates, nextDrop, avgInterval, fadeStep):
+    global largeDrops
+
+    if (random.random() < 0.05):
+        largeDrops.append(largeDrop((random.uniform(-5, 5), random.uniform(-5, 5), 0.0), tuple(random.uniform(128, 255) for i in range(3)), random.uniform(1, 2), random.uniform(0.25, 0.75)))
+
+    for ii in range(n_pixels):
+        bgColour = [0.0, 0.0, 0.0]
+        for index, drop in enumerate(largeDrops):
+            influence = drop.getInfluence(coordinates[ii])
+            for colour in range(3):
+                bgColour[colour] = min(bgColour[colour] + influence[colour], 255)
+            if drop.expired:
+                del largeDrops[index]
+
+
+        stringPosition = ii % pixels_per_string
+        cosFactor = 2*3.14/pixels_per_string
+        timeFactor = 0.07
+        colourOffset = (0.05, 0.1, 0.0)
+        # slowWaveVal = color_utils.remap(math.cos(-time.time() + stringPosition*cosFactor + offset)
+        pixels[ii] = fadeDownTo(pixels[ii], bgColour, fadeStep)
+
     if (time.time() > nextDrop):
         pixels[random.randrange(n_pixels)] = tuple(color_utils.clamp(random.gauss(x, stdDev*255.0/x), 0, 255) for x in warmWhite)
         nextDrop = time.time() + random.gauss(avgInterval, avgInterval/2)
-
-    for ii in range(n_pixels):
-        pixels[ii] = fadeDownTo(pixels[ii], softWarmWhite, fadeStep)
 
     return nextDrop
 
