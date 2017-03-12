@@ -246,7 +246,7 @@ def main():
             rainbowWaves(1.4, -2.6, 3.8)
 
         elif patternNumber == 2:
-            nextDrop = rain(nextDrop, 0.05, 0.05)
+            nextDrop = rain(coordinates, nextDrop, 0.05, 0.025)
 
         client.put_pixels(pixels, channel=0)
         time.sleep(1 / fps)
