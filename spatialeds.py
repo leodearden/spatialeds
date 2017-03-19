@@ -49,9 +49,10 @@ import color_utils
 # 0: chill
 # 1: dance
 # 2: rain
-patternNumber = 2
+# 3: discs
+patternNumber = 3
 
-maxPatternNumber = 3
+maxPatternNumber = 4
 
 n_pixels = 800  # number of pixels in the included "wall" layout
 pixels_per_string = 50
@@ -180,6 +181,58 @@ def rain(coordinates, nextDrop, avgInterval, fadeStep):
 
     return nextDrop
 
+lastDiscShift = 0
+timeBetweenDiscShifts = 10
+stringColours = list((0, 0, 0) for i in range(n_pixels))
+offset = 0.0
+
+def discs():
+    global offset
+    global stringColours
+    global lastDiscShift
+
+    offset -= 0.05
+
+    for ii in range(pixels_per_string):
+        avgColour = [0, 0, 0]
+
+        for pixel in range(ii-2, ii+3):
+            indexPixel = pixel
+            if indexPixel < 0:
+                indexPixel += pixels_per_string
+            if indexPixel >= pixels_per_string:
+                indexPixel -= pixels_per_string
+
+            for colour in range(3):
+                avgColour[colour] += stringColours[indexPixel][colour]
+
+
+        for colour in range(3):
+            avgColour[colour] /= 5
+
+        stringColours[ii] = fadeDownTo(stringColours[ii], avgColour, 0.1)
+
+    if time.time() - lastDiscShift > timeBetweenDiscShifts:
+        lastDiscShift = time.time()
+        radii = []
+        total = 0
+        stringColours = []
+
+        while total < pixels_per_string:
+            radius = random.randrange(int(pixels_per_string/10), int(pixels_per_string/3))
+            if total + radius > pixels_per_string:
+                radius = pixels_per_string - total
+            total += radius
+
+            colour = tuple(random.randrange(64,255) for i in range(3))
+            for ii in range(radius):
+                stringColours.append(colour)
+
+
+    for ii in range(n_pixels):
+        stringIndex = int(offset+ii) % pixels_per_string
+        pixels[ii] = stringColours[stringIndex]
+
 
 def main():
     global patternNumber
@@ -264,6 +317,9 @@ def main():
 
         elif patternNumber == 2:
             nextDrop = rain(coordinates, nextDrop, 0.005, 0.1)
+
+        elif patternNumber == 3:
+            discs()
 
         client.put_pixels(pixels, channel=0)
         time.sleep(1 / fps)
