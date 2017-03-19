@@ -50,9 +50,11 @@ import color_utils
 # 1: dance
 # 2: rain
 # 3: discs
-patternNumber = 3
+# 4: lava lamp
+# 5: sailor moon
+patternNumber = 5
 
-maxPatternNumber = 4
+maxPatternNumber = 6
 
 n_pixels = 800  # number of pixels in the included "wall" layout
 pixels_per_string = 50
@@ -61,6 +63,7 @@ fps = 60         # frames per second
 start_time = time.time()
 
 pixels = [(0.0, 0.0, 0.0) for i in range(n_pixels)]
+random_values = [random.random() for ii in range(n_pixels)]
 
 # Stack overflow special. I'll figure out what it does if it stops working.
 def get_ip_address(ifname):
@@ -233,6 +236,75 @@ def discs():
         stringIndex = int(offset+ii) % pixels_per_string
         pixels[ii] = stringColours[stringIndex]
 
+def lavaLamp(coordinates):
+    t = time.time() * 0.6
+    for ii in range(n_pixels):
+        # make moving stripes for x, y, and z
+        x, y, z = coordinates[ii]
+        y += color_utils.cos(x + 0.2*z, offset=0, period=1, minn=0, maxx=0.6)
+        z += color_utils.cos(x, offset=0, period=1, minn=0, maxx=0.3)
+        x += color_utils.cos(y + z, offset=0, period=1.5, minn=0, maxx=0.2)
+
+        # rotate
+        x, y, z = y, z, x
+
+        # make x, y, z -> r, g, b sine waves
+        r = color_utils.cos(x, offset=t / 4, period=2, minn=0, maxx=1)
+        g = color_utils.cos(y, offset=t / 4, period=2, minn=0, maxx=1)
+        b = color_utils.cos(z, offset=t / 4, period=2, minn=0, maxx=1)
+        r, g, b = color_utils.contrast((r, g, b), 0.5, 1.5)
+
+        # black out regions
+        r2 = color_utils.cos(x, offset=t / 10 + 12.345, period=3, minn=0, maxx=1)
+        g2 = color_utils.cos(y, offset=t / 10 + 24.536, period=3, minn=0, maxx=1)
+        b2 = color_utils.cos(z, offset=t / 10 + 34.675, period=3, minn=0, maxx=1)
+        clampdown = (r2 + g2 + b2)/2
+        clampdown = color_utils.remap(clampdown, 0.8, 0.9, 0, 1)
+        clampdown = color_utils.clamp(clampdown, 0, 1)
+        r *= clampdown
+        g *= clampdown
+        b *= clampdown
+
+        # color scheme: fade towards blue-and-orange
+        g = g * 0.6 + ((r+b) / 2) * 0.4
+
+        # apply gamma curve
+        # only do this on live leds, not in the simulator
+        #r, g, b = color_utils.gamma((r, g, b), 2.2)
+
+        pixels[ii] = (g*256, r*256, b*256)
+
+def sailorMoon(coordinates):
+    t = time.time()*0.6
+
+    for ii in range(n_pixels):
+        # random assortment of a few colors per pixel: pink, cyan, white
+        if random_values[ii] < 0.5:
+            r, g, b = (1, 0.3, 0.8)
+        elif random_values[ii] < 0.85:
+            r, g, b = (0.4, 0.7, 1)
+        else:
+            r, g, b = (2, 0.6, 1.6)
+
+        # twinkle occasional LEDs
+        twinkle_speed = 0.07
+        twinkle_density = 0.1
+        twinkle = (random_values[ii]*7 + time.time()*twinkle_speed) % 1
+        twinkle = abs(twinkle*2 - 1)
+        twinkle = color_utils.remap(twinkle, 0, 1, -1/twinkle_density, 1.1)
+        twinkle = color_utils.clamp(twinkle, -0.5, 1.1)
+        twinkle **= 5
+        twinkle *= color_utils.cos(t - ii/n_pixels, offset=0, period=7, minn=0.1, maxx=1.0) ** 20
+        twinkle = color_utils.clamp(twinkle, -0.3, 1)
+        r *= twinkle
+        g *= twinkle
+        b *= twinkle
+
+        # apply gamma curve
+        # only do this on live leds, not in the simulator
+        #r, g, b = color_utils.gamma((r, g, b), 2.2)
+
+        pixels[ii] =  (g*256, r*256, b*256)
 
 def main():
     global patternNumber
@@ -320,6 +392,12 @@ def main():
 
         elif patternNumber == 3:
             discs()
+
+        elif patternNumber == 4:
+            lavaLamp(coordinates)
+
+        elif patternNumber == 5:
+            sailorMoon(coordinates)
 
         client.put_pixels(pixels, channel=0)
         time.sleep(1 / fps)
