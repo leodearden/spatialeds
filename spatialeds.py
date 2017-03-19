@@ -120,7 +120,7 @@ class largeDrop:
     def __init__(self, coords_, colour_, spreadPower_, fadeSpeed_, coordList_):
         self.coords = coords_
         self.colour = colour_
-        self.spreadPower = tuple(random.gauss(spreadPower_, spreadPower_/4) for i in range(3))
+        self.spreadPower = spreadPower_ #tuple(random.gauss(spreadPower_, spreadPower_/4) for i in range(3))
         self.fadeSpeed = fadeSpeed_
         self.spawnTime = time.time()
         self.expired = False
@@ -138,9 +138,11 @@ class largeDrop:
         self.maxColour = 0
 
     def getInfluence(self, pointIndex):
-        influenceFactor = tuple(1 / max(self.distances[pointIndex]**spread, 0.01) for spread in self.spreadPower)
+        #influenceFactor = tuple(1 / max(self.distances[pointIndex]**spread, 0.01) for spread in self.spreadPower)
+        influenceFactor = 1 / max(self.distances[pointIndex]**self.spreadPower, 0.01)
 
-        result = tuple(channel * influenceFactor[i] * self.fadeFactor[i] for i, channel in enumerate(self.colour))
+        #result = tuple(channel * influenceFactor[i] * self.fadeFactor[i] for i, channel in enumerate(self.colour))
+        result = tuple(channel * influenceFactor * self.fadeFactor[i] for i, channel in enumerate(self.colour))
         for colour in result:
             if colour > self.maxColour:
                 self.maxColour = colour
@@ -152,7 +154,7 @@ largeDrops = []
 def rain(coordinates, nextDrop, avgInterval, fadeStep):
     global largeDrops
 
-    if (random.random() < 0.05 and len(largeDrops) < 5):
+    if (random.random() < 0.05 and len(largeDrops) < 3):
         fadeSpeed = random.uniform(0.5, 0.95)
         largeDrops.append(largeDrop((random.uniform(-5, 5), random.uniform(-5, 5), 0.0), tuple(random.uniform(128, 255) for i in range(3)), random.uniform(1, 2), tuple(color_utils.clamp(random.gauss(fadeSpeed, fadeSpeed/8), 0.5, 0.95) for i in range(3)), coordinates))
 
