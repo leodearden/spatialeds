@@ -55,12 +55,15 @@ import colours
 # 3: discs
 # 4: lava lamp
 # 5: rainbow waves
-patternNumber = 3
+# 6: wobbler
+patternNumber = 6
 
-maxPatternNumber = 6
+maxPatternNumber = 7
 
 n_pixels = 800  # number of pixels in the included "wall" layout
-pixels_per_string = 50
+n_strings = 16
+pixels_per_string = int(n_pixels/n_strings)
+
 fps = 60         # frames per second
 
 start_time = time.time()
@@ -205,7 +208,7 @@ def discs():
     global stringColours
     global lastDiscShift
 
-    offset -= 0.05
+    # offset -= 0.05
 
     for ii in range(pixels_per_string):
         avgColour = [0, 0, 0]
@@ -245,6 +248,26 @@ def discs():
     for ii in range(n_pixels):
         pixels[ii] = blendedStringColours[ii % pixels_per_string]
 
+
+def wobbler():
+    wobbleAmplitude = 5
+    bandRadius = pixels_per_string/2
+    colourOffset = 3.14/6
+    cosFactor = 6*3.14/(n_pixels/pixels_per_string)
+    t = time.time()*2
+    for string in range(n_strings):
+        bandLocation = tuple(bandRadius + wobbleAmplitude*math.cos(t + string*cosFactor + colourOffset*colour) for colour in range(3))
+        for pixel in range(pixels_per_string):
+            pixCol = [0, 0, 0]
+            for colour in range(3):
+                distance = bandLocation[colour] - pixel
+                if distance < 0:
+                    distance *= -1
+
+                pixCol[colour] = 2/distance
+
+            r, g, b = color_utils.gamma(pixCol, 2.2)
+            pixels[string*pixels_per_string + pixel] = (g*255, r*255, b*255)
 
 def lavaLamp(coordinates):
     t = time.time() * 0.6
@@ -431,6 +454,9 @@ def main():
 
         elif patternNumber == 5:
             rainbowWaves(coordinates)
+
+        elif patternNumber == 6:
+            wobbler()
 
         client.put_pixels(pixels, channel=0)
         time.sleep(1 / fps)
