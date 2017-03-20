@@ -37,6 +37,7 @@ import struct
 import errno
 import optparse
 import itertools
+from operator import add
 try:
     import json
 except ImportError:
@@ -54,7 +55,7 @@ import colours
 # 3: discs
 # 4: lava lamp
 # 5: sailor moon
-patternNumber = 3
+patternNumber = 5
 
 maxPatternNumber = 6
 
@@ -308,12 +309,16 @@ def sailorMoonGetPixelColour(rgb0, rgb1, rgb2, waveOffset, random_values, ii):
     #pixels[ii] =  (g*256, r*256, b*256)
 
 def sailorMoon(coordinates):
+    offsetMultiplier = 1.0/7
     for ii in range(n_pixels):
-        pixels[ii] = sailorMoonGetPixelColour(colours.brightOrange, colours.paleYellow, colours.neonRose, 0.0, random_values0, ii)
-        pixels[ii] = tuple(pixels[ii][colour] + sailorMoonGetPixelColour(colours.sky, colours.neonPurple, colours.mint, 0.2, random_values1, ii)[colour] for colour in range(3))
-        pixels[ii] = tuple(pixels[ii][colour] + sailorMoonGetPixelColour(colours.hardPink, colours.lilac, colours.neonRose, 0.4, random_values1, ii)[colour] for colour in range(3))
-        pixels[ii] = tuple(pixels[ii][colour] + sailorMoonGetPixelColour(colours.imperialPurple, colours.crimson, colours.eyeBleedPink, 0.6, random_values2, ii)[colour] for colour in range(3))
-        pixels[ii] = tuple(pixels[ii][colour] + sailorMoonGetPixelColour(colours.brightYellow, colours.lime, colours.aqua, 0.8, random_values3, ii)[colour] for colour in range(3))
+        pixels[ii] = (0, 0, 0)
+	pixels[ii] = map(add, pixels[ii], sailorMoonGetPixelColour(colours.hardPink, colours.crimson, colours.neonRose, 0.0, random_values0, ii))
+	pixels[ii] = map(add, pixels[ii], sailorMoonGetPixelColour(colours.orange, colours.brightOrange, colours.lightOrange, offsetMultiplier*1, random_values0, ii))
+	pixels[ii] = map(add, pixels[ii], sailorMoonGetPixelColour(colours.paleYellow, colours.brightYellow, colours.lightOrange, offsetMultiplier*2, random_values0, ii))
+	pixels[ii] = map(add, pixels[ii], sailorMoonGetPixelColour(colours.mint, colours.lime, colours.aqua, offsetMultiplier*3, random_values0, ii))
+	pixels[ii] = map(add, pixels[ii], sailorMoonGetPixelColour(colours.cobalt, colours.sky, colours.indigo, offsetMultiplier*4, random_values0, ii))
+	pixels[ii] = map(add, pixels[ii], sailorMoonGetPixelColour(colours.indigo, colours.neonPurple, colours.imperialPurple, offsetMultiplier*5, random_values0, ii))
+	pixels[ii] = map(add, pixels[ii], sailorMoonGetPixelColour(colours.lilac, colours.neonPurple, colours.neonRose, offsetMultiplier*6, random_values0, ii))
 
 udpInitialised = False
 

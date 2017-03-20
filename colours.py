@@ -7,6 +7,8 @@ mint = (1, 252, 123)
 lime = (0, 255, 45)
 aqua = (130, 233, 240)
 sky = (1, 200, 207)
+cobalt = (78, 11, 197)
+indigo = (75, 0, 130)
 imperialPurple = (141, 8, 221)
 lilac = (180, 75, 237)
 neonPurple = (141, 0, 237)
@@ -15,4 +17,4 @@ hardPink = (253, 2, 144)
 neonRose = (246, 7, 101)
 crimson = (255, 33, 41)
 
-colours = [orange, brightOrange, lightOrange, paleYellow, brightYellow, mint, lime, aqua, sky, imperialPurple, lilac, neonPurple, eyeBleedPink, hardPink, neonRose, crimson]
+colours = [orange, brightOrange, lightOrange, paleYellow, brightYellow, mint, lime, aqua, sky, cobalt, indigo, imperialPurple, lilac, neonPurple, eyeBleedPink, hardPink, neonRose, crimson]
