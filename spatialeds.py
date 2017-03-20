@@ -340,20 +340,12 @@ def sailorMoon(coordinates):
         pixels[ii] = tuple(pixels[ii][colour] + sailorMoonGetPixelColour(imperialPurple, crimson, eyeBleedPink, 0.6, random_values2, ii)[colour] for colour in range(3))
         pixels[ii] = tuple(pixels[ii][colour] + sailorMoonGetPixelColour(brightYellow, lime, aqua, 0.8, random_values3, ii)[colour] for colour in range(3))
 
+udpInitialised = False
+
 def main():
     global patternNumber
+    global udpInitialised
 
-    #-------------------------------------------------------------------------------
-    # set up UDP socket
-
-    UDP_IP = get_ip_address("wlan0")
-    UDP_PORT = 5005
-
-    print ("Connected to WLAN with IP " + UDP_IP)
-
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.setblocking(0)
-    sock.bind((UDP_IP, UDP_PORT))
 
     #-------------------------------------------------------------------------------
     # handle command line
@@ -401,16 +393,34 @@ def main():
     nextDrop = 0.0
 
     while True:
-        #---------------------------------------------------------------------------
-        # listen for commands from the remote
+        if not udpInitialised:
+            #-------------------------------------------------------------------------------
+            # set up UDP socket
 
-        try:
-            data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
-        except socket.error, e:
-            # nothing available
-            pass
+            try:
+                UDP_IP = get_ip_address("wlan0")
+            except Exception as e:
+                pass
+            else:
+                udpInitialised = True
+                UDP_PORT = 5005
+
+                print ("Connected to WLAN with IP " + UDP_IP)
+
+                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                sock.setblocking(0)
+                sock.bind((UDP_IP, UDP_PORT))
         else:
-            patternNumber = (patternNumber + 1) % maxPatternNumber
+            #---------------------------------------------------------------------------
+            # listen for commands from the remote
+
+            try:
+                data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
+            except socket.error, e:
+                # nothing available
+                pass
+            else:
+                patternNumber = (patternNumber + 1) % maxPatternNumber
 
         #---------------------------------------------------------------------------
         # use the current pattern
