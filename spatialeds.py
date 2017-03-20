@@ -283,7 +283,9 @@ def lavaLamp(coordinates):
 def sailorMoonGetPixelColour(rgb0, rgb1, rgb2, waveOffset, random_values, ii):
     t = time.time()*0.6
 
-    if random_values[ii] < 0.5:
+    if random_values[ii] < 0.05:
+        r, g, b = (2.0, 2.0, 2.0)
+    elif random_values[ii] < 0.5:
         r, g, b = tuple(rgb0[channel] / 128.0 for channel in range(3))
     elif random_values[ii] < 0.85:
         r, g, b = tuple(rgb1[channel] / 128.0 for channel in range(3))
@@ -310,7 +312,7 @@ def sailorMoonGetPixelColour(rgb0, rgb1, rgb2, waveOffset, random_values, ii):
     # only do this on live leds, not in the simulator
     #r, g, b = color_utils.gamma((r, g, b), 2.2)
 
-    return (r*256, g*256, b*256)
+    return (g*256, r*256, b*256)
     #pixels[ii] =  (g*256, r*256, b*256)
 
 def sailorMoon(coordinates):
