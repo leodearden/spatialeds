@@ -55,7 +55,7 @@ import colours
 # 3: discs
 # 4: lava lamp
 # 5: rainbow waves
-patternNumber = 5
+patternNumber = 3
 
 maxPatternNumber = 6
 
@@ -196,7 +196,7 @@ def rain(coordinates, nextDrop, avgInterval, fadeStep):
     return nextDrop
 
 lastDiscShift = 0
-timeBetweenDiscShifts = 10
+timeBetweenDiscShifts = 5
 stringColours = list((0, 0, 0) for i in range(n_pixels))
 offset = 0.0
 
@@ -227,15 +227,24 @@ def discs():
         stringColours[ii] = fadeDownTo(stringColours[ii], avgColour, 0.1)
 
     if time.time() - lastDiscShift > timeBetweenDiscShifts:
+        flareLevel = 64
         lastDiscShift = time.time()
         numRings = 5
         ringThickness = 10
         newPalette = random.sample(colours.colours, numRings)
         stringColours = list(itertools.chain.from_iterable(list([x]*ringThickness for x in newPalette)))
 
+    blendedStringColours = []
+
+    remainder = math.fmod(offset, 1.0)
+    for ii in range(pixels_per_string):
+        blendedStringColours.append(tuple(int((stringColours[ii][colour] * (remainder)) + (stringColours[(ii+1)%pixels_per_string][colour] * (1-remainder))) for colour in range(3)))
+        # stringIndex = int(offset+ii) % pixels_per_string
+        # pixels[ii] = tuple(colour + flareLevel for colour in fadeVal)
+
     for ii in range(n_pixels):
-        stringIndex = int(offset+ii) % pixels_per_string
-        pixels[ii] = stringColours[stringIndex]
+        pixels[ii] = blendedStringColours[ii % pixels_per_string]
+
 
 def lavaLamp(coordinates):
     t = time.time() * 0.6
