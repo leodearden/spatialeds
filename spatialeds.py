@@ -63,7 +63,11 @@ fps = 60         # frames per second
 start_time = time.time()
 
 pixels = [(0.0, 0.0, 0.0) for i in range(n_pixels)]
-random_values = [random.random() for ii in range(n_pixels)]
+random_values0 = [random.random() for ii in range(n_pixels)]
+random_values1 = [random.random() for ii in range(n_pixels)]
+random_values2 = [random.random() for ii in range(n_pixels)]
+random_values3 = [random.random() for ii in range(n_pixels)]
+random_values4 = [random.random() for ii in range(n_pixels)]
 
 # Stack overflow special. I'll figure out what it does if it stops working.
 def get_ip_address(ifname):
@@ -276,37 +280,63 @@ def lavaLamp(coordinates):
 
         pixels[ii] = (g*256, r*256, b*256)
 
-def sailorMoon(coordinates):
+def sailorMoonGetPixelColour(rgb0, rgb1, rgb2, waveOffset, random_values, ii):
     t = time.time()*0.6
 
+    if random_values[ii] < 0.5:
+        r, g, b = tuple(rgb0[channel] / 128.0 for channel in range(3))
+    elif random_values[ii] < 0.85:
+        r, g, b = tuple(rgb1[channel] / 128.0 for channel in range(3))
+    else:
+        r, g, b = tuple(rgb2[channel] / 128.0 for channel in range(3))
+
+    stringIndex = ii % pixels_per_string
+
+    # twinkle occasional LEDs
+    twinkle_speed = 0.03
+    twinkle_density = 0.8
+    twinkle = (random_values[ii]*7 + time.time()*twinkle_speed) % 1
+    twinkle = abs(twinkle*2 - 1)
+    twinkle = color_utils.remap(twinkle, 0, 1, -1/twinkle_density, 1.1)
+    twinkle = color_utils.clamp(twinkle, -0.5, 1.1)
+    twinkle **= 5
+    twinkle *= color_utils.cos(t - stringIndex/float(pixels_per_string), offset=waveOffset, period=7, minn=0.1, maxx=1.0) ** 20
+    twinkle = color_utils.clamp(twinkle, -0.3, 1)
+    r *= twinkle
+    g *= twinkle
+    b *= twinkle
+
+    # apply gamma curve
+    # only do this on live leds, not in the simulator
+    #r, g, b = color_utils.gamma((r, g, b), 2.2)
+
+    return (r*256, g*256, b*256)
+    #pixels[ii] =  (g*256, r*256, b*256)
+
+def sailorMoon(coordinates):
+    orange = (255, 134, 59)
+    brightOrange = (255, 163, 32)
+    lightOrange = (251, 93, 34)
+    paleYellow = (238, 255, 76)
+    brightYellow = (233, 251, 15)
+    mint = (1, 252, 123)
+    lime = (0, 255, 45)
+    aqua = (130, 233, 240)
+    sky = (1, 200, 207)
+    imperialPurple = (141, 8, 221)
+    lilac = (180, 75, 237)
+    neonPurple = (141, 0, 237)
+    eyeBleedPink = (255, 0, 216)
+    hardPink = (253, 2, 144)
+    neonRose = (246, 7, 101)
+    crimson = (255, 33, 41)
+
     for ii in range(n_pixels):
-        # random assortment of a few colors per pixel: pink, cyan, white
-        if random_values[ii] < 0.5:
-            r, g, b = (1, 0.3, 0.8)
-        elif random_values[ii] < 0.85:
-            r, g, b = (0.4, 0.7, 1)
-        else:
-            r, g, b = (2, 0.6, 1.6)
-
-        # twinkle occasional LEDs
-        twinkle_speed = 0.07
-        twinkle_density = 0.1
-        twinkle = (random_values[ii]*7 + time.time()*twinkle_speed) % 1
-        twinkle = abs(twinkle*2 - 1)
-        twinkle = color_utils.remap(twinkle, 0, 1, -1/twinkle_density, 1.1)
-        twinkle = color_utils.clamp(twinkle, -0.5, 1.1)
-        twinkle **= 5
-        twinkle *= color_utils.cos(t - ii/n_pixels, offset=0, period=7, minn=0.1, maxx=1.0) ** 20
-        twinkle = color_utils.clamp(twinkle, -0.3, 1)
-        r *= twinkle
-        g *= twinkle
-        b *= twinkle
-
-        # apply gamma curve
-        # only do this on live leds, not in the simulator
-        #r, g, b = color_utils.gamma((r, g, b), 2.2)
-
-        pixels[ii] =  (g*256, r*256, b*256)
+        pixels[ii] = sailorMoonGetPixelColour(brightOrange, paleYellow, neonRose, 0.0, random_values0, ii)
+        pixels[ii] = tuple(pixels[ii][colour] + sailorMoonGetPixelColour(sky, neonPurple, mint, 0.2, random_values1, ii)[colour] for colour in range(3))
+        pixels[ii] = tuple(pixels[ii][colour] + sailorMoonGetPixelColour(hardPink, lilac, neonRose, 0.4, random_values1, ii)[colour] for colour in range(3))
+        pixels[ii] = tuple(pixels[ii][colour] + sailorMoonGetPixelColour(imperialPurple, crimson, eyeBleedPink, 0.6, random_values2, ii)[colour] for colour in range(3))
+        pixels[ii] = tuple(pixels[ii][colour] + sailorMoonGetPixelColour(brightYellow, lime, aqua, 0.8, random_values3, ii)[colour] for colour in range(3))
 
 def main():
     global patternNumber
