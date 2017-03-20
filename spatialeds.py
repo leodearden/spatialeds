@@ -278,9 +278,7 @@ def lavaLamp(coordinates):
 def sailorMoonGetPixelColour(rgb0, rgb1, rgb2, waveOffset, random_values, ii):
     t = time.time()*0.6
 
-    if random_values[ii] < 0.05:
-        r, g, b = (2.0, 2.0, 2.0)
-    elif random_values[ii] < 0.5:
+    if random_values[ii] < 0.5:
         r, g, b = tuple(rgb0[channel] / 128.0 for channel in range(3))
     elif random_values[ii] < 0.85:
         r, g, b = tuple(rgb1[channel] / 128.0 for channel in range(3))
