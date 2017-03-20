@@ -36,6 +36,7 @@ import fcntl
 import struct
 import errno
 import optparse
+import itertools
 try:
     import json
 except ImportError:
@@ -44,6 +45,7 @@ except ImportError:
 
 import opc
 import color_utils
+import colours
 
 # use for mode switching. Modes are as follows:
 # 0: chill
@@ -52,7 +54,7 @@ import color_utils
 # 3: discs
 # 4: lava lamp
 # 5: sailor moon
-patternNumber = 5
+patternNumber = 3
 
 maxPatternNumber = 6
 
@@ -223,20 +225,10 @@ def discs():
 
     if time.time() - lastDiscShift > timeBetweenDiscShifts:
         lastDiscShift = time.time()
-        radii = []
-        total = 0
-        stringColours = []
-
-        while total < pixels_per_string:
-            radius = random.randrange(int(pixels_per_string/10), int(pixels_per_string/3))
-            if total + radius > pixels_per_string:
-                radius = pixels_per_string - total
-            total += radius
-
-            colour = tuple(random.randrange(64,255) for i in range(3))
-            for ii in range(radius):
-                stringColours.append(colour)
-
+        numRings = 5
+        ringThickness = 10
+        newPalette = random.sample(colours.colours, numRings)
+        stringColours = list(itertools.chain.from_iterable(list([x]*ringThickness for x in newPalette)))
 
     for ii in range(n_pixels):
         stringIndex = int(offset+ii) % pixels_per_string
@@ -316,29 +308,12 @@ def sailorMoonGetPixelColour(rgb0, rgb1, rgb2, waveOffset, random_values, ii):
     #pixels[ii] =  (g*256, r*256, b*256)
 
 def sailorMoon(coordinates):
-    orange = (255, 134, 59)
-    brightOrange = (255, 163, 32)
-    lightOrange = (251, 93, 34)
-    paleYellow = (238, 255, 76)
-    brightYellow = (233, 251, 15)
-    mint = (1, 252, 123)
-    lime = (0, 255, 45)
-    aqua = (130, 233, 240)
-    sky = (1, 200, 207)
-    imperialPurple = (141, 8, 221)
-    lilac = (180, 75, 237)
-    neonPurple = (141, 0, 237)
-    eyeBleedPink = (255, 0, 216)
-    hardPink = (253, 2, 144)
-    neonRose = (246, 7, 101)
-    crimson = (255, 33, 41)
-
     for ii in range(n_pixels):
-        pixels[ii] = sailorMoonGetPixelColour(brightOrange, paleYellow, neonRose, 0.0, random_values0, ii)
-        pixels[ii] = tuple(pixels[ii][colour] + sailorMoonGetPixelColour(sky, neonPurple, mint, 0.2, random_values1, ii)[colour] for colour in range(3))
-        pixels[ii] = tuple(pixels[ii][colour] + sailorMoonGetPixelColour(hardPink, lilac, neonRose, 0.4, random_values1, ii)[colour] for colour in range(3))
-        pixels[ii] = tuple(pixels[ii][colour] + sailorMoonGetPixelColour(imperialPurple, crimson, eyeBleedPink, 0.6, random_values2, ii)[colour] for colour in range(3))
-        pixels[ii] = tuple(pixels[ii][colour] + sailorMoonGetPixelColour(brightYellow, lime, aqua, 0.8, random_values3, ii)[colour] for colour in range(3))
+        pixels[ii] = sailorMoonGetPixelColour(colours.brightOrange, colours.paleYellow, colours.neonRose, 0.0, random_values0, ii)
+        pixels[ii] = tuple(pixels[ii][colour] + sailorMoonGetPixelColour(colours.sky, colours.neonPurple, colours.mint, 0.2, random_values1, ii)[colour] for colour in range(3))
+        pixels[ii] = tuple(pixels[ii][colour] + sailorMoonGetPixelColour(colours.hardPink, colours.lilac, colours.neonRose, 0.4, random_values1, ii)[colour] for colour in range(3))
+        pixels[ii] = tuple(pixels[ii][colour] + sailorMoonGetPixelColour(colours.imperialPurple, colours.crimson, colours.eyeBleedPink, 0.6, random_values2, ii)[colour] for colour in range(3))
+        pixels[ii] = tuple(pixels[ii][colour] + sailorMoonGetPixelColour(colours.brightYellow, colours.lime, colours.aqua, 0.8, random_values3, ii)[colour] for colour in range(3))
 
 udpInitialised = False
 
