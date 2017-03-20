@@ -268,7 +268,7 @@ def lavaLamp(coordinates):
 
         # apply gamma curve
         # only do this on live leds, not in the simulator
-        #r, g, b = color_utils.gamma((r, g, b), 2.2)
+        r, g, b = color_utils.gamma((r, g, b), 2.2)
 
         pixels[ii] = (g*256, r*256, b*256)
 
