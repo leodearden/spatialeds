@@ -261,7 +261,7 @@ def wobbler():
     colourOffset = 3.14/6
     cosFactor = 6*3.14/(n_pixels/pixels_per_string)
     t = time.time()*2
-    offsetOrdering = [ [ 0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 1, 0], [2, 0, 1] ]
+    offsetOrdering = [ [ 0, 1, 2], [0, 2, 1], [1, 0, 2] ]
 
     if math.cos(time.time()/2) < -0.99 and time.time() - lastPixelOrderSwitch > minPixelOrderSwitchInterval:
         pixelOrder = (pixelOrder + 1) % len(offsetOrdering)
