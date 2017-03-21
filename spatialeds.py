@@ -251,7 +251,7 @@ def discs():
 
 def wobbler():
     wobbleAmplitude = 5
-    bandRadius = pixels_per_string/2
+    bandRadius = pixels_per_string/2 + math.cos(time.time()/2)*5
     colourOffset = 3.14/6
     cosFactor = 6*3.14/(n_pixels/pixels_per_string)
     t = time.time()*2
