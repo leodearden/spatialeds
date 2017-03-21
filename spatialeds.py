@@ -249,14 +249,26 @@ def discs():
         pixels[ii] = blendedStringColours[ii % pixels_per_string]
 
 
+pixelOrder = 0
+lastPixelOrderSwitch = 0
+minPixelOrderSwitchInterval = 5
+
 def wobbler():
+    global pixelOrder
+    global lastPixelOrderSwitch
     wobbleAmplitude = 5
-    bandRadius = pixels_per_string/2 + math.cos(time.time()/2)*5
+    bandRadius = pixels_per_string/2 + math.cos(time.time()/2)*18 - 13
     colourOffset = 3.14/6
     cosFactor = 6*3.14/(n_pixels/pixels_per_string)
     t = time.time()*2
+    offsetOrdering = [ [ 0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 1, 0], [2, 0, 1] ]
+
+    if math.cos(time.time()/2) < -0.99 and time.time() - lastPixelOrderSwitch > minPixelOrderSwitchInterval:
+        pixelOrder = (pixelOrder + 1) % len(offsetOrdering)
+        lastPixelOrderSwitch = time.time()
+
     for string in range(n_strings):
-        bandLocation = tuple(bandRadius + wobbleAmplitude*math.cos(t + string*cosFactor + colourOffset*colour) for colour in range(3))
+        bandLocation = tuple(bandRadius + wobbleAmplitude*math.cos(t + string*cosFactor + colourOffset*offsetOrdering[pixelOrder][colour]) for colour in range(3))
         for pixel in range(pixels_per_string):
             pixCol = [0, 0, 0]
             for colour in range(3):
@@ -264,7 +276,7 @@ def wobbler():
                 if distance < 0:
                     distance *= -1
 
-                pixCol[colour] = 2/distance
+                pixCol[colour] = (2 + max(bandRadius, 0.0000001)/10)/distance
 
             r, g, b = color_utils.gamma(pixCol, 2.2)
             pixels[string*pixels_per_string + pixel] = (g*255, r*255, b*255)
