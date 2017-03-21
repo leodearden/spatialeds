@@ -257,7 +257,7 @@ def wobbler():
     global pixelOrder
     global lastPixelOrderSwitch
     wobbleAmplitude = 5
-    bandRadius = pixels_per_string/2 + math.cos(time.time()/2)*18 - 13
+    bandRadius = pixels_per_string/2 + math.cos(time.time()/2)*20 - 13
     colourOffset = 3.14/6
     cosFactor = 6*3.14/(n_pixels/pixels_per_string)
     t = time.time()*2
