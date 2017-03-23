@@ -256,14 +256,15 @@ minPixelOrderSwitchInterval = 5
 def wobbler():
     global pixelOrder
     global lastPixelOrderSwitch
+    timeCosFactor = 2
     wobbleAmplitude = 5
-    bandRadius = pixels_per_string/2 + math.cos(time.time()/2)*20 - 13
+    bandRadius = pixels_per_string/2 + math.cos(time.time()/timeCosFactor)*18 - 13
     colourOffset = 3.14/6
     cosFactor = 6*3.14/(n_pixels/pixels_per_string)
-    t = time.time()*2
+    t = time.time()*4
     offsetOrdering = [ [ 0, 1, 2], [0, 2, 1], [1, 0, 2] ]
 
-    if math.cos(time.time()/2) < -0.99 and time.time() - lastPixelOrderSwitch > minPixelOrderSwitchInterval:
+    if math.cos(time.time()/timeCosFactor) < -0.99 and time.time() - lastPixelOrderSwitch > minPixelOrderSwitchInterval:
         pixelOrder = (pixelOrder + 1) % len(offsetOrdering)
         lastPixelOrderSwitch = time.time()
 
