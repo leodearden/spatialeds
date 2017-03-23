@@ -107,7 +107,7 @@ def rainbowWaves(speed_r, speed_g, speed_b):
             r = blackstripes * color_utils.remap(math.cos((t/speed_r + pct*freq_r)*math.pi*2), -1, 1, 0, 256)
             g = blackstripes * color_utils.remap(math.cos((t/speed_g + pct*freq_g)*math.pi*2), -1, 1, 0, 256)
             b = blackstripes * color_utils.remap(math.cos((t/speed_b + pct*freq_b)*math.pi*2), -1, 1, 0, 256)
-            pixels[ii] = (r, g, b)
+            pixels[ii] = fadeDownTo(pixels[ii], (r, g, b), 0.5)
 
 def fadeDownTo(fromVal, toVal, step):
     result = [0.0, 0.0, 0.0]
@@ -281,7 +281,7 @@ def wobbler():
                 pixCol[colour] = (2 + max(bandRadius, 0.0000001)/10)/distance
 
             r, g, b = color_utils.gamma(pixCol, 2.2)
-            pixels[string*pixels_per_string + pixel] = (g*255, r*255, b*255)
+            pixels[string*pixels_per_string + pixel] = fadeDownTo(pixels[string*pixels_per_string + pixel], (g*255, r*255, b*255), 0.5)
 
 def lavaLamp(coordinates):
     t = time.time() * 0.6
@@ -319,7 +319,7 @@ def lavaLamp(coordinates):
         # only do this on live leds, not in the simulator
         r, g, b = color_utils.gamma((r, g, b), 2.2)
 
-        pixels[ii] = (g*256, r*256, b*256)
+	pixels[ii] = fadeDownTo(pixels[ii], (r*256, g*256, b*256), 0.25)
 
 def rainbowSparklesGetPixelColour(rgb0, rgb1, rgb2, waveOffset, random_values, ii):
     t = time.time()*0.6
@@ -364,7 +364,7 @@ def rainbowSparkles(coordinates):
         pixels[ii] = map(add, pixels[ii], rainbowSparklesGetPixelColour(colours.mint, colours.lime, colours.aqua, offsetMultiplier*3, random_values3, ii))
         pixels[ii] = map(add, pixels[ii], rainbowSparklesGetPixelColour(colours.cobalt, colours.sky, colours.indigo, offsetMultiplier*4, random_values4, ii))
         pixels[ii] = map(add, pixels[ii], rainbowSparklesGetPixelColour(colours.indigo, colours.neonPurple, colours.imperialPurple, offsetMultiplier*5, random_values5, ii))
-        pixels[ii] = map(add, pixels[ii], rainbowSparklesGetPixelColour(colours.lilac, colours.neonPurple, colours.neonRose, offsetMultiplier*6, random_values6, ii))
+        pixels[ii] = fadeDownTo(pixels[ii], map(add, pixels[ii], rainbowSparklesGetPixelColour(colours.lilac, colours.neonPurple, colours.neonRose, offsetMultiplier*6, random_values6, ii)), 0.25)
 
 udpInitialised = False
 
