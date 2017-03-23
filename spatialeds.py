@@ -57,6 +57,8 @@ import colours
 # 5: wobbler
 patternNumber = 0
 
+patternDict = { 'C': 0, 'D': 1, 'R': 2, 'L': 3, 'S': 4, 'W': 5 }
+
 maxPatternNumber = 6
 
 n_pixels = 800  # number of pixels in the included "wall" layout
@@ -444,7 +446,12 @@ def main():
                 # nothing available
                 pass
             else:
-                patternNumber = (patternNumber + 1) % maxPatternNumber
+                for byte in data:
+                    print byte
+                    try:
+                        patternNumber = patternDict[byte]
+                    except Exception as e:
+                        pass
 
         #---------------------------------------------------------------------------
         # use the current pattern
