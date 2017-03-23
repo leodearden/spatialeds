@@ -52,13 +52,12 @@ import colours
 # 0: chill
 # 1: dance
 # 2: rain
-# 3: discs
-# 4: lava lamp
-# 5: rainbow waves
-# 6: wobbler
-patternNumber = 6
+# 3: lava lamp
+# 4: rainbow sparkles
+# 5: wobbler
+patternNumber = 0
 
-maxPatternNumber = 7
+maxPatternNumber = 6
 
 n_pixels = 800  # number of pixels in the included "wall" layout
 n_strings = 16
@@ -320,7 +319,7 @@ def lavaLamp(coordinates):
 
         pixels[ii] = (g*256, r*256, b*256)
 
-def rainbowWavesGetPixelColour(rgb0, rgb1, rgb2, waveOffset, random_values, ii):
+def rainbowSparklesGetPixelColour(rgb0, rgb1, rgb2, waveOffset, random_values, ii):
     t = time.time()*0.6
 
     if random_values[ii] < 0.5:
@@ -353,17 +352,17 @@ def rainbowWavesGetPixelColour(rgb0, rgb1, rgb2, waveOffset, random_values, ii):
     return (g*256, r*256, b*256)
     #pixels[ii] =  (g*256, r*256, b*256)
 
-def rainbowWaves(coordinates):
+def rainbowSparkles(coordinates):
     offsetMultiplier = 1.0/7
     for ii in range(n_pixels):
         pixels[ii] = (0, 0, 0)
-        pixels[ii] = map(add, pixels[ii], rainbowWavesGetPixelColour(colours.hardPink, colours.crimson, colours.neonRose, 0.0, random_values0, ii))
-        pixels[ii] = map(add, pixels[ii], rainbowWavesGetPixelColour(colours.orange, colours.brightOrange, colours.lightOrange, offsetMultiplier*1, random_values1, ii))
-        pixels[ii] = map(add, pixels[ii], rainbowWavesGetPixelColour(colours.paleYellow, colours.brightYellow, colours.lightOrange, offsetMultiplier*2, random_values2, ii))
-        pixels[ii] = map(add, pixels[ii], rainbowWavesGetPixelColour(colours.mint, colours.lime, colours.aqua, offsetMultiplier*3, random_values3, ii))
-        pixels[ii] = map(add, pixels[ii], rainbowWavesGetPixelColour(colours.cobalt, colours.sky, colours.indigo, offsetMultiplier*4, random_values4, ii))
-        pixels[ii] = map(add, pixels[ii], rainbowWavesGetPixelColour(colours.indigo, colours.neonPurple, colours.imperialPurple, offsetMultiplier*5, random_values5, ii))
-        pixels[ii] = map(add, pixels[ii], rainbowWavesGetPixelColour(colours.lilac, colours.neonPurple, colours.neonRose, offsetMultiplier*6, random_values6, ii))
+        pixels[ii] = map(add, pixels[ii], rainbowSparklesGetPixelColour(colours.hardPink, colours.crimson, colours.neonRose, 0.0, random_values0, ii))
+        pixels[ii] = map(add, pixels[ii], rainbowSparklesGetPixelColour(colours.orange, colours.brightOrange, colours.lightOrange, offsetMultiplier*1, random_values1, ii))
+        pixels[ii] = map(add, pixels[ii], rainbowSparklesGetPixelColour(colours.paleYellow, colours.brightYellow, colours.lightOrange, offsetMultiplier*2, random_values2, ii))
+        pixels[ii] = map(add, pixels[ii], rainbowSparklesGetPixelColour(colours.mint, colours.lime, colours.aqua, offsetMultiplier*3, random_values3, ii))
+        pixels[ii] = map(add, pixels[ii], rainbowSparklesGetPixelColour(colours.cobalt, colours.sky, colours.indigo, offsetMultiplier*4, random_values4, ii))
+        pixels[ii] = map(add, pixels[ii], rainbowSparklesGetPixelColour(colours.indigo, colours.neonPurple, colours.imperialPurple, offsetMultiplier*5, random_values5, ii))
+        pixels[ii] = map(add, pixels[ii], rainbowSparklesGetPixelColour(colours.lilac, colours.neonPurple, colours.neonRose, offsetMultiplier*6, random_values6, ii))
 
 udpInitialised = False
 
@@ -460,15 +459,12 @@ def main():
             nextDrop = rain(coordinates, nextDrop, 0.005, 0.1)
 
         elif patternNumber == 3:
-            discs()
-
-        elif patternNumber == 4:
             lavaLamp(coordinates)
 
-        elif patternNumber == 5:
-            rainbowWaves(coordinates)
+        elif patternNumber == 4:
+            rainbowSparkles(coordinates)
 
-        elif patternNumber == 6:
+        elif patternNumber == 5:
             wobbler()
 
         client.put_pixels(pixels, channel=0)
