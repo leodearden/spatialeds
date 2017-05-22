@@ -1,0 +1,14 @@
+[Unit]
+Description=Spatialeds Server
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/home/pi/src/spatialeds/spatialeds.py
+User=pi
+WorkingDirectory=/home/pi/src/spatialeds
+StandardOutput=journal+console
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
